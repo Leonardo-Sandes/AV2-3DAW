@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falls Car - Aluguel de Carros</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="main-nav">
+        <div class="logo-area">
+            <span class="logo">FALLS CAR</span>
+        </div>
+        <div class="nav-items">
+            <select id="navCategoriaSelect" class="nav-select" onchange="filtrarPelaNav()">
+                <option value="todas">Grupo de Carros</option>
+                <option value="Hatch">Hatch</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+            </select>
+            
+            <a href="#">Rede de Agências</a>
+            <a href="#">Ofertas</a>
+        </div>
+        <div class="user-actions">
+            <a href="#">Minhas Reservas</a>
+            <a href="#" class="btn-login">Login | Cadastrar</a>
+        </div>
+    </nav>
+
+    <div class="search-container">
+        <div class="search-group">
+            <label for="cidadeSelect">Local de Retirada</label>
+            <select id="cidadeSelect" class="search-input">
+                <option value="todas">Todas as cidades...</option>
+                <option value="Rio de Janeiro">Rio de Janeiro, RJ</option>
+                <option value="Niterói">Niterói, RJ</option>
+                <option value="Belo Horizonte">Belo Horizonte, MG</option>
+                <option value="Brasília">Brasília, DF</option>
+            </select>
+        </div>
+        
+        <div class="search-group">
+            <label for="categoriaSelect">Categoria</label>
+            <select id="categoriaSelect" class="search-input">
+                <option value="todas">Qualquer categoria...</option>
+                <option value="Hatch">Hatch</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+            </select>
+        </div>
+
+        <div class="search-group">
+            <label for="dataRetirada">Data Retirada</label>
+            <input type="date" id="dataRetirada" class="search-input">
+        </div>
+
+        <button class="btn-blue" onclick="aplicarFiltros()">Buscar Veículos</button>
+    </div>
+
+    <main class="content-area">
+        <h2 class="section-title">Veículos Disponíveis</h2>
+        <div class="car-grid" id="carGrid">
+            </div>
+    </main>
+
+ <div class="modal" id="paymentModal">
+        <div class="modal-content modal-scroll">
+            <span class="close-btn" onclick="fecharModal()">&times;</span>
+            <h2>Finalizar Reserva</h2>
+            
+            <div class="checkout-summary" id="checkoutSummary">
+                </div>
+
+            <form action="processar_reserva.php" method="POST" id="paymentForm">
+                <input type="hidden" id="carroIdInput" name="carro_id">
+                <input type="hidden" id="carroNomeInput" name="carro_nome">
+                
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" name="nome_cliente">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CPF</label>
+                        <input type="text" name="cpf" maxlength="14">
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" name="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Cidade de Retirada/Devolução</label>
+                    <input type="text" id="cidadeInput" name="cidade" required readonly style="background-color: #f1f5f9;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data de Coleta</label>
+                        <input type="date" id="modalDataColeta" name="data_coleta" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hora de Coleta</label>
+                        <input type="time" name="hora_coleta" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data de Devolução</label>
+                    <input type="date" name="data_devolucao" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select name="forma_pagamento" required class="search-input" style="width: 100%;">
+                        <option value="">Selecione</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Boleto">Boleto Bancário</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-green w-100">Confirmar Reserva</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
