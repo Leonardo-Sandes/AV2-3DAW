@@ -1,17 +1,14 @@
 const frota = [
-    // HATCH
     { id: 1, nome: "Chevrolet Onix", categoria: "Hatch", cidade: "Rio de Janeiro", preco: 110.00, imagem: "carros/onix.jpeg" },
     { id: 2, nome: "Hyundai HB20", categoria: "Hatch", cidade: "Belo Horizonte", preco: 105.00, imagem: "carros/hb20.jpeg" },
     { id: 3, nome: "Volkswagen Polo", categoria: "Hatch", cidade: "São Paulo", preco: 115.00, imagem: "carros/polo.jpeg" },
     { id: 4, nome: "Fiat Argo", categoria: "Hatch", cidade: "Niterói", preco: 95.00, imagem: "carros/argo.jpeg" },
 
-    // SEDAN
     { id: 5, nome: "Toyota Corolla", categoria: "Sedan", cidade: "Rio de Janeiro", preco: 250.00, imagem: "carros/corolla.jpeg" },
     { id: 6, nome: "Honda Civic", categoria: "Sedan", cidade: "Brasília", preco: 270.00, imagem: "carros/civic.jpeg" },
     { id: 7, nome: "Nissan Sentra", categoria: "Sedan", cidade: "Belo Horizonte", preco: 240.00, imagem: "carros/sentra.jpeg" },
     { id: 8, nome: "Chevrolet Cruze", categoria: "Sedan", cidade: "Rio de Janeiro", preco: 235.00, imagem: "carros/cruze.jpeg" },
 
-    // SUV
     { id: 9, nome: "Jeep Compass", categoria: "SUV", cidade: "Niterói", preco: 290.00, imagem: "carros/jeep.jpeg" },
     { id: 10, nome: "Volkswagen T-Cross", categoria: "SUV", cidade: "Rio de Janeiro", preco: 280.00, imagem: "carros/tcross.jpeg" },
     { id: 11, nome: "Hyundai Creta", categoria: "SUV", cidade: "Brasília", preco: 260.00, imagem: "carros/creta.jpeg" },
@@ -39,7 +36,7 @@ function renderizarCarros(carros) {
                     <span class="car-title">${carro.nome}</span>
                     <span class="car-category">${carro.categoria}</span>
                 </div>
-                <div class="car-city">📍 ${carro.cidade}</div>
+                <div class="car-city"> ${carro.cidade}</div>
                 <div class="car-price">R$ ${carro.preco.toFixed(2)} <span>/dia</span></div>
                 <button class="btn-blue w-100" onclick="abrirModal(${carro.id})">Alugar</button>
             </div>
@@ -68,6 +65,12 @@ function filtrarPelaNav() {
 }
 
 function abrirModal(idCarro) {
+    if (typeof usuarioLogado !== 'undefined' && !usuarioLogado) {
+        alert("Você precisa fazer login ou se cadastrar para alugar um veículo.");
+        window.location.href = 'login.php';
+        return;
+    }
+
     carroSelecionado = frota.find(c => c.id === idCarro);
     const dataInput = document.getElementById('dataRetirada').value;
     
