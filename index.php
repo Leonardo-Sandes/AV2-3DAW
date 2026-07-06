@@ -1,100 +1,154 @@
-const frota = [
-    { id: 1, nome: "Chevrolet Onix", categoria: "Hatch", cidade: "Rio de Janeiro", preco: 110.00, imagem: "carros/onix.jpeg" },
-    { id: 2, nome: "Hyundai HB20", categoria: "Hatch", cidade: "Belo Horizonte", preco: 105.00, imagem: "carros/hb20.jpeg" },
-    { id: 3, nome: "Volkswagen Polo", categoria: "Hatch", cidade: "São Paulo", preco: 115.00, imagem: "carros/polo.jpeg" },
-    { id: 4, nome: "Fiat Argo", categoria: "Hatch", cidade: "Niterói", preco: 95.00, imagem: "carros/argo.jpeg" },
+<?php
+require_once 'conexao.php';
+$logado = isset($_SESSION['usuario_id']);
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falls Car - Aluguel de Carros</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    { id: 5, nome: "Toyota Corolla", categoria: "Sedan", cidade: "Rio de Janeiro", preco: 250.00, imagem: "carros/corolla.jpeg" },
-    { id: 6, nome: "Honda Civic", categoria: "Sedan", cidade: "Brasília", preco: 270.00, imagem: "carros/civic.jpeg" },
-    { id: 7, nome: "Nissan Sentra", categoria: "Sedan", cidade: "Belo Horizonte", preco: 240.00, imagem: "carros/sentra.jpeg" },
-    { id: 8, nome: "Chevrolet Cruze", categoria: "Sedan", cidade: "Rio de Janeiro", preco: 235.00, imagem: "carros/cruze.jpeg" },
+    <nav class="main-nav">
+        <div class="logo-area">
+            <span class="logo">FALLS CAR</span>
+        </div>
+        <div class="nav-items">
+            <select id="navCategoriaSelect" class="nav-select" onchange="filtrarPelaNav()">
+                <option value="todas">Grupo de Carros</option>
+                <option value="Hatch">Hatch</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+            </select>
+            
+            <a href="#">Rede de Agências</a>
+            <a href="#">Ofertas</a>
+        </div>
+        <div class="user-actions">
+            <?php if($logado): ?>
+                <span style="color: var(--blue-accent); font-weight: bold; text-transform: uppercase;">
+                    Olá, <?= htmlspecialchars($_SESSION['usuario_nome']) ?>
+                </span>
+                <a href="#">Minhas Reservas</a>
+                
+                <?php if(isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] == 'admin'): ?>
+                    <a href="admin.php" style="color: #eab308;">Acessar Painel</a>
+                <?php endif; ?>
+                
+                <a href="logout.php" style="color: #ef4444; font-weight: bold;">Sair</a>
+            <?php else: ?>
+                <a href="login.php" class="btn-login">Login | Cadastrar</a>
+            <?php endif; ?>
+        </div>
+    </nav>
 
-    { id: 9, nome: "Jeep Compass", categoria: "SUV", cidade: "Niterói", preco: 290.00, imagem: "carros/jeep.jpeg" },
-    { id: 10, nome: "Volkswagen T-Cross", categoria: "SUV", cidade: "Rio de Janeiro", preco: 280.00, imagem: "carros/tcross.jpeg" },
-    { id: 11, nome: "Hyundai Creta", categoria: "SUV", cidade: "Brasília", preco: 260.00, imagem: "carros/creta.jpeg" },
-    { id: 12, nome: "Honda HR-V", categoria: "SUV", cidade: "Belo Horizonte", preco: 310.00, imagem: "carros/hrv.jpeg" }
-];
+    <div class="search-container">
+        <div class="search-group">
+            <label for="cidadeSelect">Local de Retirada</label>
+            <select id="cidadeSelect" class="search-input">
+                <option value="todas">Todas as cidades...</option>
+                <option value="Rio de Janeiro">Rio de Janeiro, RJ</option>
+                <option value="Niterói">Niterói, RJ</option>
+                <option value="Belo Horizonte">Belo Horizonte, MG</option>
+                <option value="Brasília">Brasília, DF</option>
+            </select>
+        </div>
+        
+        <div class="search-group">
+            <label for="categoriaSelect">Categoria</label>
+            <select id="categoriaSelect" class="search-input">
+                <option value="todas">Qualquer categoria...</option>
+                <option value="Hatch">Hatch</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+            </select>
+        </div>
 
-let carroSelecionado = null;
+        <div class="search-group">
+            <label for="dataRetirada">Data Retirada</label>
+            <input type="date" id="dataRetirada" class="search-input">
+        </div>
 
-function renderizarCarros(carros) {
-    const grid = document.getElementById('carGrid');
-    grid.innerHTML = '';
+        <button class="btn-blue" onclick="aplicarFiltros()">Buscar Veículos</button>
+    </div>
 
-    if (carros.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #64748b; font-size: 1.2rem; margin-top: 2rem;">Nenhum veículo encontrado com estes filtros.</p>';
-        return;
-    }
-
-    carros.forEach(carro => {
-        const card = document.createElement('div');
-        card.className = 'car-card';
-        card.innerHTML = `
-            <img src="${carro.imagem}" alt="${carro.nome}" class="car-image" onerror="this.onerror=null; this.src=''; this.alt='[ Imagem do ${carro.nome} ]'; this.style.backgroundColor='#e2e8f0';">
-            <div class="car-info">
-                <div class="car-header">
-                    <span class="car-title">${carro.nome}</span>
-                    <span class="car-category">${carro.categoria}</span>
-                </div>
-                <div class="car-city"> ${carro.cidade}</div>
-                <div class="car-price">R$ ${carro.preco.toFixed(2)} <span>/dia</span></div>
-                <button class="btn-blue w-100" onclick="abrirModal(${carro.id})">Alugar</button>
+    <main class="content-area">
+        <h2 class="section-title">Veículos Disponíveis</h2>
+        <div class="car-grid" id="carGrid">
             </div>
-        `;
-        grid.appendChild(card);
-    });
-}
+    </main>
 
-function aplicarFiltros() {
-    const cidadeEscolhida = document.getElementById('cidadeSelect').value;
-    const categoriaEscolhida = document.getElementById('categoriaSelect').value;
+    <div class="modal" id="paymentModal">
+        <div class="modal-content modal-scroll">
+            <span class="close-btn" onclick="fecharModal()">&times;</span>
+            <h2>Finalizar Reserva</h2>
+            
+            <div class="checkout-summary" id="checkoutSummary">
+                </div>
 
-    const carrosFiltrados = frota.filter(carro => {
-        const matchCidade = cidadeEscolhida === 'todas' || carro.cidade === cidadeEscolhida;
-        const matchCategoria = categoriaEscolhida === 'todas' || carro.categoria === categoriaEscolhida;
-        return matchCidade && matchCategoria;
-    });
+            <form action="processar_reserva.php" method="POST" id="paymentForm">
+                <input type="hidden" id="carroIdInput" name="carro_id">
+                <input type="hidden" id="carroNomeInput" name="carro_nome">
+                
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" name="nome_cliente" <?php if($logado) echo 'value="'.htmlspecialchars($_SESSION['usuario_nome']).'"'; ?> required>
+                </div>
 
-    renderizarCarros(carrosFiltrados);
-}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CPF</label>
+                        <input type="text" name="cpf" maxlength="14" required>
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" name="email" required>
+                    </div>
+                </div>
 
-function filtrarPelaNav() {
-    const navValue = document.getElementById('navCategoriaSelect').value;
-    document.getElementById('categoriaSelect').value = navValue;
-    aplicarFiltros();
-}
+                <div class="form-group">
+                    <label>Cidade de Retirada/Devolução</label>
+                    <input type="text" id="cidadeInput" name="cidade" required readonly style="background-color: #f1f5f9;">
+                </div>
 
-function abrirModal(idCarro) {
-    if (typeof usuarioLogado !== 'undefined' && !usuarioLogado) {
-        alert("Você precisa fazer login ou se cadastrar para alugar um veículo.");
-        window.location.href = 'login.php';
-        return;
-    }
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Data de Coleta</label>
+                        <input type="date" id="modalDataColeta" name="data_coleta" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hora de Coleta</label>
+                        <input type="time" name="hora_coleta" required>
+                    </div>
+                </div>
 
-    carroSelecionado = frota.find(c => c.id === idCarro);
-    const dataInput = document.getElementById('dataRetirada').value;
-    
-    const summary = document.getElementById('checkoutSummary');
-    summary.innerHTML = `
-        <strong>Veículo:</strong> ${carroSelecionado.nome} (${carroSelecionado.categoria})<br>
-        <strong>Valor da Diária:</strong> R$ ${carroSelecionado.preco.toFixed(2)}
-    `;
+                <div class="form-group">
+                    <label>Data de Devolução</label>
+                    <input type="date" name="data_devolucao" required>
+                </div>
 
-    document.getElementById('carroIdInput').value = carroSelecionado.id;
-    document.getElementById('carroNomeInput').value = carroSelecionado.nome;
-    document.getElementById('cidadeInput').value = carroSelecionado.cidade;
-    
-    if(dataInput) {
-        document.getElementById('modalDataColeta').value = dataInput;
-    }
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select name="forma_pagamento" required class="search-input" style="width: 100%;">
+                        <option value="">Selecione</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Boleto">Boleto Bancário</option>
+                    </select>
+                </div>
 
-    document.getElementById('paymentModal').style.display = 'flex';
-}
+                <button type="submit" class="btn-green w-100">Confirmar Reserva</button>
+            </form>
+        </div>
+    </div>
 
-function fecharModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-    document.getElementById('paymentForm').reset();
-    carroSelecionado = null;
-}
-
-renderizarCarros(frota);
+    <script>
+        const usuarioLogado = <?= $logado ? 'true' : 'false' ?>;
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
